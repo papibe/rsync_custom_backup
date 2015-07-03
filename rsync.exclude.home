@@ -1,0 +1,6 @@
+- .mozilla/
+- .thumbnails/
+- .cache/mozilla/
+- .cache/thumbnails/
+- dwhelper/
++ *

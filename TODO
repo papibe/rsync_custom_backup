@@ -1,0 +1,22 @@
+Tue Mar 10 22:55:37 CDT 2015
+- backup only gimp files (*.xcf)
+- backing up gimp files may be implemented using exclude rules.
+
++------------------------------------------------------------------------
+Sun Feb 22 00:17:44 CST 2015
+- compress gimp files
+
++------------------------------------------------------------------------
+Tue Feb 17 18:20:11 CST 2015
+- Eliminate TODOs on code.
+- Evaluate posibility of exclude rules for private directory.
+- Separate functionality of incremental and differental.
+- 
++------------------------------------------------------------------------
+
+Sat Feb 14 23:13:24 CST 2015
+- Take current changes to backup.sh and save them to another directory
+- Recover last version of backup.sh
+- Eliminate all spaces from directories. Replace them with underscore.
+- Commit
+- Get saved changes (incremental functionality) and add then again to backup.sh
