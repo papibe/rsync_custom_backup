@@ -114,15 +114,13 @@ echo "Backing up: $SOURCE"
 backup_type="undefined"
 while [  "$backup_type" == "undefined" ]; do
 
-    echo -n "Full, differential, or incremental (f/d/i)? "
+    echo -n "Full, or differential (f/d)? "
     read answer
 
     case $answer in
         "f")    backup_type="Full"
                 ;;
         "d")    backup_type="Differential"
-                ;;
-        "i")    backup_type="Incremental"
                 ;;
         *)      backup_type="undefined"
                 ;;
@@ -165,7 +163,7 @@ if [ "$backup_type" == "Full" ]; then
     ln -s "$destination" "$LINK_LATEST_FULL_BACKUP"
 
 # Differential backup.
-elif [ "$backup_type" == "Differential" ]; then
+else
 
     # Set full backup directory so it works as a reference.
 
@@ -224,78 +222,4 @@ elif [ "$backup_type" == "Differential" ]; then
         find "$destination" -depth -type d -empty -delete
     fi
 
-# Incremental backup.
-else
-    # Set full backup directory so it works as a reference.
-
-    # Form a list of available full backups.
-    full_dirs=()
-    while read -r -d '' dir; do
-        full_dirs+=("$dir")
-    done < <(find "$DEST_BASE_DIR" -maxdepth 1 -type d -name '*Full' -print0)
-
-    # Get (actual) directory pointed by symlink $LINK_LATEST_FULL_BACKUP
-    link_lfb="$(readlink -f "$LINK_LATEST_FULL_BACKUP")"
-    link_lfb_fn="${link_lfb##*/}"
-
-    # Show user list of available full backup, and let him/her select it directory
-    # as reference for the incremental/differential.
-    option_set="false"
-
-    while [ "$option_set" == "false" ]; do
-        echo
-        echo "Full backups available:"
-        for index in ${!full_dirs[*]}; do
-            dir="${full_dirs[$index]}"
-            filename=${dir##*/}
-
-            # Add label to full backup pointed by by symlink $LINK_LATEST_FULL_BACKU
-            if [ "$filename" == "$link_lfb_fn" ]; then
-                echo -e "\t$index) $filename (latest)"
-            else
-                echo -e "\t$index) $filename"
-            fi
-        done
-        echo -n "Select full backup directory? "
-        read option
-
-        if [[ $option != *[!0-9]* && $option -ge 0 && $option -lt ${#full_dirs[*]} ]]; then
-            option_set="true"
-        fi
-    done
-
-    COMPARE_RULES="--compare-dest=${full_dirs[$option]}/" 
-
-    # Form a list of differential and incremental backups.
-    full_dirs=()
-    while read -r -d '' dir; do
-        full_dirs+=("$dir")
-    done < <(find "$DEST_BASE_DIR" -maxdepth 1 -type d \( -name '*Differential' -o -name '*Incremental' \) -print0)
-
-    for index in ${!full_dirs[*]}; do
-        COMPARE_RULES="$COMPARE_RULES --compare-dest=${full_dirs[$index]}/" 
-    done
-
-    echo "--------------------------"
-    echo "$COMPARE_RULES"
-    echo "--------------------------"
-
-    # Now that the full backup is selected, construct the list of differentil and/or incremental backups.
-
-    RSYNC_CMD="rsync -av "$DRY_RUN" "$EXCLUDE_RULE" "$COMPARE_RULES" "$SOURCE" "$destination""
-
-    # Print command to be executed.
-    echo Command to be executed:
-    echo
-    echo "$RSYNC_CMD"
-    echo
-    echo -n "Press Enter to start backup."
-    read
-
-    $RSYNC_CMD
-
-    # Prune empty directories.
-    if [ "$DRY_RUN" == "" ]; then
-        find "$destination" -depth -type d -empty -delete
-    fi
 fi
