@@ -69,12 +69,12 @@ while [ "$#" -gt 0 ]; do
             # Set global variables that depend on source directory.
             if [ "$1" == "home" ]; then
                 SOURCE="$HOME/"                         # directory to be backed up.
-                DEST_BASE_DIR="$BU_MOUNT_POINT/Backups/rsync/home" # Direct parent directory of all backups.
+                DEST_BASE_DIR="$BU_MOUNT_POINT/Backups/rsyncv2/home" # Direct parent directory of all backups.
                 EXCLUDE_FILE="$HOME/bin/rsync.exclude.home"  # Exclude rules for rsync.
                 TEMPLATE_NAME="Trusty_Vaughan"          # Template name for backup directories.
             else
                 SOURCE="$HOME/dwhelper/"                # directory to be backed up.
-                DEST_BASE_DIR="$BU_MOUNT_POINT/Backups/rsync/private" # Direct parent directory of all backups.
+                DEST_BASE_DIR="$BU_MOUNT_POINT/Backups/rsyncv2/private" # Direct parent directory of all backups.
                 EXCLUDE_FILE="$HOME/bin/rsync.exclude.private" # Exclude rules for rsync.
                 TEMPLATE_NAME="dwhelper_Trusty_Vaughan" # Template name for backup directories.
             fi
