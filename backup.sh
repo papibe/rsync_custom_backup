@@ -135,7 +135,6 @@ done
 
 # Set backup destination: include date and hour.
 current_date=$(date '+%F_%T')
-destination="$DEST_BASE_DIR/${current_date}_${TEMPLATE_NAME}_$backup_type/"
 
 # Check for exlcude rules.
 if [ -f "$EXCLUDE_FILE" ]; then
@@ -153,6 +152,9 @@ fi
 
 # Full backup.
 if [ "$backup_type" == "Full" ]; then
+    # Set destination for full backup.
+    destination="$DEST_BASE_DIR/${current_date}_${TEMPLATE_NAME}_$backup_type/"
+
     RSYNC_CMD="rsync -av "$DRY_RUN" "$EXCLUDE_RULE" "$SOURCE" "$destination""
     # Print command to be executed.
     echo Command to be executed:
@@ -170,7 +172,6 @@ if [ "$backup_type" == "Full" ]; then
 
 # Differential backup.
 else
-
     # Set full backup directory so it works as a reference.
 
     # Form a list of available full backups.
@@ -214,8 +215,18 @@ else
             option_set="true"
         fi
     done
+    # Destination will be the full backup chosen.
+    current_destination="${full_dirs[$option]}/"
+    destination="$current_destination"
 
-    RSYNC_CMD="rsync -av "$DRY_RUN" "$EXCLUDE_RULE" --compare-dest="${full_dirs[$option]}/" "$SOURCE" "$destination""
+    #destination="${current_destination/Full/Differential}/"
+
+    # Set backup dir for saving the changes. TODO: dates are incorrect, reflect the present.
+    #backup_dir="$DEST_BASE_DIR/${current_date}_${TEMPLATE_NAME}_$backup_type/"
+    backup_dir="${current_destination/Full/Differential}"
+
+    #RSYNC_CMD="rsync -av "$DRY_RUN" "$EXCLUDE_RULE" --compare-dest="${full_dirs[$option]}/" "$SOURCE" "$destination""
+    RSYNC_CMD="rsync -av "$DRY_RUN" "$EXCLUDE_RULE" --backup --backup-dir="$backup_dir" "$SOURCE" "$destination""
 
     # Print command to be executed.
     echo Command to be executed:
@@ -226,6 +237,12 @@ else
     read
 
     $RSYNC_CMD
+
+    # Update directory name for current full backup.
+    updated="$DEST_BASE_DIR/${current_date}_${TEMPLATE_NAME}_$backup_type/"
+    updated_name="${updated/Differential/Full}"
+
+    mv -v "$destination" "$updated_name"
 
     # Prune empty directories.
     if [ "$DRY_RUN" == "" ]; then
