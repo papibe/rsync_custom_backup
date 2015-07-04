@@ -107,6 +107,12 @@ if ! mountpoint -q "$BU_MOUNT_POINT" ; then
     exit 1
 fi
 
+# Check is base directories exist.
+if [ ! -d "$DEST_BASE_DIR" ]; then
+    echo "ERROR: $DEST_BASE_DIR does not exists."
+    exit 1
+fi
+
 # Print actual path directory that is going to be backed up.
 echo "Backing up: $SOURCE"
 
@@ -173,11 +179,15 @@ else
         full_dirs+=("$dir")
     done < <(find "$DEST_BASE_DIR" -maxdepth 1 -type d -name '*Full' -print0)
 
+    # Differential is not possible without a full backup.
+    if [ ${#full_dirs[@]} -eq 0 ]; then
+        echo "ERROR: unable to to a differential backup. No full backups found."
+        exit 1
+    fi
+
     # Get (actual) directory pointed by symlink $LINK_LATEST_FULL_BACKUP
     link_lfb="$(readlink -f "$LINK_LATEST_FULL_BACKUP")"
     link_lfb_fn="${link_lfb##*/}"
-
-    echo "$link_lfb_fn"
 
     # Show user list of available full backup, and let him/her select it directory
     # as reference for the incremental/differential.
