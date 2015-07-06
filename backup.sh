@@ -221,7 +221,7 @@ else
 
     #destination="${current_destination/Full/Differential}/"
 
-    # Set backup dir for saving the changes. TODO: dates are incorrect, reflect the present.
+    # Set backup dir for saving the changes.
     #backup_dir="$DEST_BASE_DIR/${current_date}_${TEMPLATE_NAME}_$backup_type/"
     backup_dir="${current_destination/Full/Differential}"
 
@@ -242,11 +242,15 @@ else
     updated="$DEST_BASE_DIR/${current_date}_${TEMPLATE_NAME}_$backup_type/"
     updated_name="${updated/Differential/Full}"
 
-    mv -v "$destination" "$updated_name"
-
-    # Prune empty directories.
+    # Task pending when not a dry run.
     if [ "$DRY_RUN" == "" ]; then
-        find "$destination" -depth -type d -empty -delete
-    fi
+        # Prune empty directories on differential.
+        find "$backup_dir" -depth -type d -empty -delete
+        # Update name of the full backup.
+        mv -v "$destination" "$updated_name"
 
+        # Update symlink to the latest full backup.
+        rm -rf "$LINK_LATEST_FULL_BACKUP"
+        ln -s "$updated_name" "$LINK_LATEST_FULL_BACKUP"
+    fi
 fi
