@@ -3,4 +3,6 @@
 - .cache/mozilla/
 - .cache/thumbnails/
 - dwhelper/
+- XBMC-backup/
+- .kodi/
 + *
