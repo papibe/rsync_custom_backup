@@ -228,19 +228,28 @@ else
     #RSYNC_CMD="rsync -av "$DRY_RUN" "$EXCLUDE_RULE" --compare-dest="${full_dirs[$option]}/" "$SOURCE" "$destination""
     RSYNC_CMD="rsync -av "$DRY_RUN" "$EXCLUDE_RULE" --backup --backup-dir="$backup_dir" "$SOURCE" "$destination""
 
+    # Update directory name for current full backup.
+    updated="$DEST_BASE_DIR/${current_date}_${TEMPLATE_NAME}_$backup_type/"
+    updated_name="${updated/Differential/Full}"
+
     # Print command to be executed.
-    echo Command to be executed:
-    echo
+    echo Commands to be executed:
+    echo "------------------------------------------------"
     echo "$RSYNC_CMD"
+    echo
+    echo find "$backup_dir" -depth -type d -empty -delete
+    echo
+    echo mv -v "$destination" "$updated_name"
+    echo
+    echo rm -rf "$LINK_LATEST_FULL_BACKUP"
+    echo
+    echo ln -s "$updated_name" "$LINK_LATEST_FULL_BACKUP"
+    echo "------------------------------------------------"
     echo
     echo -n "Press Enter to start backup."
     read
 
     $RSYNC_CMD
-
-    # Update directory name for current full backup.
-    updated="$DEST_BASE_DIR/${current_date}_${TEMPLATE_NAME}_$backup_type/"
-    updated_name="${updated/Differential/Full}"
 
     # Task pending when not a dry run.
     if [ "$DRY_RUN" == "" ]; then
