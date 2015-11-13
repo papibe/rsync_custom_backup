@@ -37,8 +37,8 @@ EOF
 }
 
 # Global variables. Relevant file, directories and switches.
-BU_MOUNT_POINT="/media/pablo/vbackup"   # Mount point of the the backup disk.
-DRY_RUN=""                              # Dry run switch to rsync.
+BU_MOUNT_POINT="/mnt"   # Mount point of the the backup disk.
+DRY_RUN=""              # Dry run switch to rsync.
 
 # Boolean variable used to avoid using both home and private.
 source_set="not_set"                    # Source not set yet.
