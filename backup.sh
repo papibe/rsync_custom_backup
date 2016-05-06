@@ -153,13 +153,19 @@ fi
 # Full backup.
 if [ "$backup_type" == "Full" ]; then
     # Set destination for full backup.
-    destination="$DEST_BASE_DIR/${current_date}_${TEMPLATE_NAME}_$backup_type/"
+    destination="$DEST_BASE_DIR/${current_date}_${TEMPLATE_NAME}_$backup_type"
 
     RSYNC_CMD="rsync -av "$DRY_RUN" "$EXCLUDE_RULE" "$SOURCE" "$destination""
     # Print command to be executed.
     echo Command to be executed:
-    echo
+    echo "------------------------------------------------"
     echo "$RSYNC_CMD"
+    echo
+    echo rm -rf "$LINK_LATEST_FULL_BACKUP"
+    echo
+    echo ln -s "./${destination##*/}" "$LINK_LATEST_FULL_BACKUP"
+    echo
+    echo "------------------------------------------------"
     echo
     echo -n "Press Enter to start backup."
     read
@@ -168,7 +174,7 @@ if [ "$backup_type" == "Full" ]; then
 
     # Update symlink to the latest full backup.
     rm -rf "$LINK_LATEST_FULL_BACKUP"
-    ln -s "$destination" "$LINK_LATEST_FULL_BACKUP"
+    ln -s "./${destination##*/}" "$LINK_LATEST_FULL_BACKUP"
 
 # Differential backup.
 else
@@ -226,10 +232,10 @@ else
     backup_dir="${current_destination/Full/Differential}"
 
     #RSYNC_CMD="rsync -av "$DRY_RUN" "$EXCLUDE_RULE" --compare-dest="${full_dirs[$option]}/" "$SOURCE" "$destination""
-    RSYNC_CMD="rsync -av "$DRY_RUN" "$EXCLUDE_RULE" --backup --backup-dir="$backup_dir" "$SOURCE" "$destination""
+    RSYNC_CMD="rsync -av "$DRY_RUN" "$EXCLUDE_RULE" --backup --backup-dir="$backup_dir" --delete "$SOURCE" "$destination""
 
     # Update directory name for current full backup.
-    updated="$DEST_BASE_DIR/${current_date}_${TEMPLATE_NAME}_$backup_type/"
+    updated="$DEST_BASE_DIR/${current_date}_${TEMPLATE_NAME}_$backup_type"
     updated_name="${updated/Differential/Full}"
 
     # Print command to be executed.
@@ -243,7 +249,7 @@ else
     echo
     echo rm -rf "$LINK_LATEST_FULL_BACKUP"
     echo
-    echo ln -s "$updated_name" "$LINK_LATEST_FULL_BACKUP"
+    echo ln -s "./${updated_name##*/}" "$LINK_LATEST_FULL_BACKUP"
     echo "------------------------------------------------"
     echo
     echo -n "Press Enter to start backup."
@@ -260,6 +266,6 @@ else
 
         # Update symlink to the latest full backup.
         rm -rf "$LINK_LATEST_FULL_BACKUP"
-        ln -s "$updated_name" "$LINK_LATEST_FULL_BACKUP"
+        ln -s "./${updated_name##*/}" "$LINK_LATEST_FULL_BACKUP"
     fi
 fi
